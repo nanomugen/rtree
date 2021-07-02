@@ -35,17 +35,17 @@ int main(){
     //printf("teste de alocar o node filho(n.children[0]->r.x0): %d\n",n2.children[0]->r.x0); segmentation fault
     addChild(&n2,&n);
     printf("teste de alocar o node filho(n.children[0]->r.x0): %d\n",n.children[0]->r.x0);
-    printf("teste de alocar o node filho(n.children[0]->r.x0): %d\n",n2.children[0]->r.x0);
+    printf("teste de alocar o node filho(n2.children[0]->r.x0): %d\n",n2.children[0]->r.x0);
 
     printf("print do n.r.x0: %d\n\n",n.r.x0);
 
     node n3 = createNode();
-    printf("MEIO: criou o n3 com crate node, endereco de n3 (&n3):%d\n",&n3);
+    printf("MEIO: criou o n3 com create node, endereco de n3 (&n3):%d\n",&n3);
     node n4 = createNode2(r);
     printf("n3.r.x0: %d\n",n3.r.x0);
     printf("n4.r.x0: %d\n",n4.r.x0);
     addChild(&n3,&n4);
-
+	printf("adicionou o n4 como filho de n3, teste: n3.children[0]->r.x0: %d\n",n3.children[0]->r.x0);
     return 0;
 }
 
@@ -69,7 +69,7 @@ rect createRect(int x0,int y0,int xf, int yf){
 	rect->y0=y0;
 	rect->xf=xf;
 	rect->yf=yf;
-	prinf("createRect(int,int,int,int):");
+	printf("createRect(int,int,int,int):");
 	return *rect;
 }
 
@@ -78,9 +78,9 @@ rect createRect(int x0,int y0,int xf, int yf){
 void addChild(node *parent,node *child){
     //printf("addchild com %d parent e %d child\n",&parent,&child);
     int i;
-    for(i=0;i<=M,i++){
+    for(i=0;i<=M;i++){
         if(parent->children[i]==NULL) {
-            parent=>child[i]=child;
+            parent->children[i]=child;
             break;
         }
     }
