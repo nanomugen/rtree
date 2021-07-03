@@ -21,45 +21,26 @@ contains the rectangles in the child node
 */
 
 int main(){
-    printf("init test\n");
-    rect r;
-    r.x0=7;
-    printf("%d\n",r.y0);
-    node n;
-    n.r.x0=2;
-    printf("print do n.r.x0: %d\n",n.r.x0);
-    node n2;
-    n2.r.x0=3;
-    n.children[0]= &n2;
-    printf("teste de alocar o node filho(n.children[0]->r.x0): %d\n",n.children[0]->r.x0);
-    //printf("teste de alocar o node filho(n.children[0]->r.x0): %d\n",n2.children[0]->r.x0); segmentation fault
-    addChild(&n2,&n);
-    printf("teste de alocar o node filho(n.children[0]->r.x0): %d\n",n.children[0]->r.x0);
-    printf("teste de alocar o node filho(n2.children[0]->r.x0): %d\n",n2.children[0]->r.x0);
-
-    printf("print do n.r.x0: %d\n\n",n.r.x0);
-
-    node n3 = createNode();
-    printf("MEIO: criou o n3 com create node, endereco de n3 (&n3):%d\n",&n3);
-    node n4 = createNode2(r);
-    printf("n3.r.x0: %d\n",n3.r.x0);
-    printf("n4.r.x0: %d\n",n4.r.x0);
-    addChild(&n3,&n4);
-	printf("adicionou o n4 como filho de n3, teste: n3.children[0]->r.x0: %d\n",n3.children[0]->r.x0);
+   
+	printf("init\n");
     return 0;
 }
 
 node createNode(){
     node *node = malloc(sizeof(node));
-    printf("createNode(): criando o ponteiro node %d\n",*node);
+    *node->r = createRect(0,0,0,0);
+    node->prole=0;
+
+    //printf("createNode(): criando o ponteiro node %d\n",*node);
 
     return *node; 
 }
-node createNode2(rect r){
-    node node =  createNode();
-	printf("createNode2(rect): criado com create node o node %d com rect %d\n",node,r);
-    node.r = r;
-    return node;
+node createNode2(rect *r){
+    node *node =  malloc(sizeof(node));;
+	//printf("createNode2(rect): criado com create node o node %d com rect %d\n",node,r);
+    *node->r = *r;
+    node->prole=0;
+    return *node;
 }
 
 rect createRect(int x0,int y0,int xf, int yf){
@@ -73,6 +54,7 @@ rect createRect(int x0,int y0,int xf, int yf){
 	return *rect;
 }
 
+//AQUI TA SÓ O PROTOTIPO, FALATA A LÓGICA PESADA AQUI DE MBR E SPLIT & MERGE
 //aqui ta definido só até achar um null sem tratamento se tiver todos cheios
 //não deve ter todos cheios para o tratamento de split vem depois disso no insert
 void addChild(node *parent,node *child){
@@ -86,3 +68,54 @@ void addChild(node *parent,node *child){
     }
 
 }
+
+/*CONSIDERAÇÕES
+
+    NA LITERATURA ELE CONSIDERA O LEAF-NODE AQUELE QUE DETEM m-M DADOS COMO 'FILHOS' 
+    AQUI POR UMA QUESTÃO DE SIMPLIFICAÇÃO PRA SABER SE UM NODE É LEAF SERÁ PESQUISADO 
+    "NODE->CHILDREN[0]->CHILDREN[0]==NULL?" SE SIM QUER DIZER QUE ESTE NODE É LEAF 
+    E SEU FILHO É DATA (O RECT EM SI É A INFORMAÇÃO AMAZENADA)
+
+*/
+bool isLeaf(node *node){
+    if(node==NULL) return false;
+    if(node->children[0]==NULL) return false;    //se isso é true quer dizer que este é data(e não leaf)
+
+
+    if(node->children[0]->children[0]==NULL) return true;
+    
+}
+
+void Search(rect *r,node *node){//TODO CONFERIR LOGICA
+    if(node==NULL) return;
+    if(isBounded(node->r,r)==false) return;
+    if(isLeaf(node)){//procurar pelos children que são os datas
+        int i;
+        for(i=0;i<node->prole;i++){
+            if(isBounded(node->children[i]->r,r)){
+                printf("found this data: p0(%d,%d) - p1(%d,%d)\n",node->children[i]->r->x0,node->children[i]->r->y0,node->children[i]->r->xf,node->children[i]->r->yf);
+            }
+        }
+    }
+    else{
+        int i;
+        for(i=0;i<node->prole;i++){
+            Search(r,node->children[i]);
+        }
+    }
+}
+
+void RemoveOne(node* node){
+    if(node==NULL) return;
+    free(node);
+}
+
+bool isBounded(rect* r1,rect* r2){
+    if(r1==NULL || r2==NULL)return false;
+    if(((r1->x0 <= r2->x0 && r1->xf >= r2->x0)||(r1->x0 <= r2->xf && r1->xf >= r2->xf))
+    &&((r1->y0 <= r2->y0 && r1->yf >= r2->y0)||(r1->y0 <= r2->yf && r1->yf >= r2->yf))){
+        return true;
+    }
+    return false;
+}
+
